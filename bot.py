@@ -267,6 +267,125 @@ async def handle_photo(message: types.Message):
     task = asyncio.create_task(confirm())
     delayed_tasks[user_id] = task
 
+class AddEventStates(StatesGroup):
+    дата = State()
+    время = State()
+    активность = State()
+    место = State()
+    ссылка = State()
+    билеты = State()
+
+@dp.message_handler(commands=['добавить'])
+async def add_event_start(message: types.Message):
+    await message.answer("Начнём добавление события! Напиши дату (ГГГГ-ММ-ДД):")
+    await AddEventStates.дата.set()
+
+@dp.message_handler(state=AddEventStates.дата)
+async def add_event_date(message: types.Message, state: FSMContext):
+    await state.update_data(дата=message.text.strip())
+    await message.answer("Теперь время (ЧЧ:ММ):")
+    await AddEventStates.время.set()
+
+@dp.message_handler(state=AddEventStates.время)
+async def add_event_time(message: types.Message, state: FSMContext):
+    await state.update_data(время=message.text.strip())
+    await message.answer("Как называется активность?")
+    await AddEventStates.активность.set()
+
+@dp.message_handler(state=AddEventStates.активность)
+async def add_event_activity(message: types.Message, state: FSMContext):
+    await state.update_data(активность=message.text.strip())
+    await message.answer("Где это будет?")
+    await AddEventStates.место.set()
+
+@dp.message_handler(state=AddEventStates.место)
+async def add_event_place(message: types.Message, state: FSMContext):
+    await state.update_data(место=message.text.strip())
+    await message.answer("Скинь ссылку на локацию (или - если нет):")
+    await AddEventStates.ссылка.set()
+
+@dp.message_handler(state=AddEventStates.ссылка)
+async def add_event_link(message: types.Message, state: FSMContext):
+    await state.update_data(ссылка=message.text.strip())
+    await message.answer("И ссылку на билеты (или - если нет):")
+    await AddEventStates.билеты.set()
+
+@dp.message_handler(state=AddEventStates.билеты)
+async def add_event_final(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    new_event = {
+        "дата": data['дата'],
+        "время": data['время'],
+        "активность": data['активность'],
+        "место": data['место'],
+        "ссылка": data['ссылка'] if data['ссылка'] != '-' else "",
+        "билеты": message.text.strip() if message.text.strip() != '-' else ""
+    }
+    schedule.append(new_event)
+    await message.answer("Супер! Добавил новое событие ✅")
+    await state.finish()
+
+class EventEditStates(StatesGroup):
+    choosing_date = State()
+    choosing_event = State()
+    editing_field = State()
+    new_value = State()
+
+@dp.message_handler(commands=['редактировать'])
+async def start_edit_event(message: types.Message, state: FSMContext):
+    await message.answer("Напиши дату события, которое редактируем (ГГГГ-ММ-ДД):")
+    await EventEditStates.choosing_date.set()
+
+@dp.message_handler(state=EventEditStates.choosing_date)
+async def choose_event_date(message: types.Message, state: FSMContext):
+    date_str = message.text.strip()
+    events = [e for e in schedule if e['дата'] == date_str]
+    if not events:
+        await message.answer("Хм, ничего не вижу на эту дату. Может, добавим новое событие? Команда /добавить тебе в помощь!")
+        await state.finish()
+        return
+    await state.update_data(date=date_str, events=events)
+    event_list = "\n".join([f"{idx+1}. {e['время']} {e['активность']} ({e['место']})" for idx, e in enumerate(events)])
+    await message.answer(f"Вот список на {date_str} — выбери номер события для редактирования:\n{event_list}")
+    await EventEditStates.choosing_event.set()
+
+@dp.message_handler(state=EventEditStates.choosing_event)
+async def choose_event_number(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    try:
+        idx = int(message.text.strip()) - 1
+        event = data['events'][idx]
+        await state.update_data(selected_event_index=idx)
+        await message.answer("Что меняем? Напиши: дата, время, активность, место, ссылка или билеты")
+        await EventEditStates.editing_field.set()
+    except:
+        await message.answer("Не могу понять, какой номер ты выбрал. Попробуй ещё раз — просто число из списка!")
+
+@dp.message_handler(state=EventEditStates.editing_field)
+async def choose_field(message: types.Message, state: FSMContext):
+    field = message.text.strip().lower()
+    if field not in ['дата', 'время', 'активность', 'место', 'ссылка', 'билеты']:
+        await message.answer("Выбери, что будем менять: дата, время, активность, место, ссылка или билеты")
+        return
+    await state.update_data(editing_field=field)
+    await message.answer(f"Окей, напиши новое значение для {field}:")
+    await EventEditStates.new_value.set()
+
+@dp.message_handler(state=EventEditStates.new_value)
+async def apply_new_value(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    field = data['editing_field']
+    value = message.text.strip()
+    date = data['date']
+    idx = data['selected_event_index']
+    for i, e in enumerate(schedule):
+        if e['дата'] == date:
+            if i == idx:
+                schedule[i][field] = value
+                break
+    await message.answer("Готово! Всё поменял ✨")
+    await state.finish()
+
 # Автоуведомления
 async def send_daily():
     for uid in user_ids:
