@@ -389,9 +389,16 @@ async def apply_new_value(message: types.Message, state: FSMContext):
 async def send_daily():
     for uid in user_ids:
         await send_today(types.Message(message_id=0, chat=types.Chat(id=uid, type='private')))
+# ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Саммари плана на завтра (формат "суперкоротко")
 async def send_tomorrow_summary():
+    date = (datetime.now(timezone("Europe/Rome")).date() + timedelta(days=1)).isoformat()
+    plan = [s for s in schedule if s["дата"] == date]
+    if not plan:
+        return
+    summary = f"📌 Завтра ({date}) по плану: " + ", ".join(s['активность'] for s in plan)
     for uid in user_ids:
-        await send_tomorrow(types.Message(message_id=0, chat=types.Chat(id=uid, type='private')))
+        await bot.send_message(uid, summary)
+
 async def check_reminders():
     now = datetime.now(timezone("Europe/Rome"))
     for s in schedule:
@@ -409,7 +416,7 @@ async def on_startup(dp):
     keep_alive()
     rome = timezone("Europe/Rome")
     scheduler.add_job(send_daily, 'cron', hour=8, timezone=rome)
-    scheduler.add_job(send_tomorrow_summary, 'cron', hour=21, timezone=rome)
+    scheduler.add_job(send_tomorrow_summary, 'cron', hour=21:45, timezone=rome)
     scheduler.add_job(check_reminders, 'interval', minutes=1)
     scheduler.start()
 
