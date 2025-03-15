@@ -130,46 +130,46 @@ nearby_menu.add(KeyboardButton("⬅ Назад в меню"))
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     user_ids.add(message.from_user.id)
-    await message.answer("Бот запущен. Выберите действие:", reply_markup=main_menu)
+    await message.answer("Привет! Я уже готов помочь 🙂 Что делаем?", reply_markup=main_menu)
 
 @dp.message_handler(lambda m: m.text == "📅 Расписание")
 async def open_schedule_menu(message: types.Message):
-    await message.answer("Выберите действие:", reply_markup=schedule_menu)
+    await message.answer("Что тебе показать?", reply_markup=schedule_menu)
 
 @dp.message_handler(lambda m: m.text == "📍 Что рядом")
 async def open_nearby_menu(message: types.Message):
-    await message.answer("Выберите категорию:", reply_markup=nearby_menu)
+    await message.answer("Смотри, что могу найти рядом 👇", reply_markup=nearby_menu)
 
 @dp.message_handler(lambda m: m.text == "⬅ Назад в меню")
 async def back_to_main_menu(message: types.Message):
-    await message.answer("📋 Главное меню:", reply_markup=main_menu)
+    await message.answer("Окей, я снова здесь 😎", reply_markup=main_menu)
 
 @dp.message_handler(lambda m: m.text == "📅 Сегодня")
 async def send_today(message: types.Message):
-    await send_plan_for_date(message, datetime.now(timezone("Europe/Rome")).date().isoformat(), "📅 Расписание на сегодня")
+    await send_plan_for_date(message, datetime.now(timezone("Europe/Rome")).date().isoformat(), "📅 План на сегодня")
 
 @dp.message_handler(lambda m: m.text == "📅 Завтра")
 async def send_tomorrow(message: types.Message):
     date = (datetime.now(timezone("Europe/Rome")).date() + timedelta(days=1)).isoformat()
-    await send_plan_for_date(message, date, "📅 План на завтра")
+    await send_plan_for_date(message, date, "📅 Завтра в планах")
 
 @dp.message_handler(lambda m: m.text == "📆 Расписание на дату")
 async def ask_date(message: types.Message):
-    await message.answer("Введите дату в формате ГГГГ-ММ-ДД:")
+    await message.answer("Скинь дату в формате ГГГГ-ММ-ДД, посмотрю план 🧐")
 
 @dp.message_handler(lambda m: m.text and len(m.text) == 10 and m.text.count('-') == 2)
 async def date_input(message: types.Message):
     try:
         date_str = message.text.strip()
         datetime.strptime(date_str, "%Y-%m-%d")
-        await send_plan_for_date(message, date_str, f"📅 Расписание на {date_str}")
+        await send_plan_for_date(message, date_str, f"📅 План на {date_str}")
     except:
-        await message.answer("❌ Неверный формат. Пример: 2025-03-25")
+        await message.answer("Упс! Формат даты не тот. Пример: 2025-03-25")
 
 async def send_plan_for_date(message, date_str, title):
     plan = [s for s in schedule if s["дата"] == date_str]
     if not plan:
-        await message.answer(f"На {date_str} событий нет.")
+        await message.answer(f"Пока на {date_str} ничего нет. Отдохнём? 😌")
     else:
         text = f"{title}:\n"
         for s in plan:
@@ -183,12 +183,14 @@ async def send_plan_for_date(message, date_str, title):
 @dp.message_handler(lambda m: m.text == "❓ Помощь с ботом")
 async def help_message(message: types.Message):
     text = (
-        "👋 *Как пользоваться ботом:*\n\n"
-        "📅 *Сегодня / Завтра* — план на день\n"
-        "📆 *Расписание на дату* — введите дату в формате 2025-03-15\n"
-        "🚻 / 🏛 — найти объекты рядом (нужна локация)\n"
-        "📸 — загрузка фото на Яндекс.Диск\n"
-        "⬅ — вернуться в меню"
+        "Привет! Я рядом и готов помочь 😊\n\n"
+        "Вот что я умею:\n"
+        "📅 *Сегодня / Завтра* — расскажу, что у нас в плане\n"
+        "📆 *Расписание на дату* — просто напиши дату, например: 2025-03-25\n"
+        "🚻 / 🏛 — подскажу, что интересного рядом (туалеты и достопримечательности)\n"
+        "📸 *Загрузка фото* — кидай фотки, всё сохраню\n"
+        "🗺 *Маршрут до квартиры* — покажу путь\n"
+        "⬅ *Назад в меню* — если запутался, просто нажми 😊"
     )
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton("⬅ Назад в меню"))
     await message.answer(text, parse_mode='Markdown', reply_markup=keyboard)
