@@ -200,8 +200,7 @@ async def send_tomorrow_summary():
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
-    summary = f"Завтра пришлю подробный план дня! А пока краткий план на ({date}): "
-    summary += ", ".join([s['активность'] for s in plan])
+    summary = f"📌 Завтра (\[{date}\]) по плану: " + ", ".join(s['активность'] for s in plan)
     for uid in user_ids:
         await bot.send_message(uid, summary)
 # ✅ Обновлённая функция — ссылки на карты без запроса локации
@@ -410,7 +409,7 @@ async def on_startup(dp):
     keep_alive()
     rome = timezone("Europe/Rome")
     scheduler.add_job(send_daily, 'cron', hour=8, timezone=rome)
-    scheduler.add_job(send_tomorrow_summary, 'cron', hour=20, timezone=rome)
+    scheduler.add_job(send_tomorrow_summary, 'cron', hour=21, timezone=rome)
     scheduler.add_job(check_reminders, 'interval', minutes=1)
     scheduler.start()
 
