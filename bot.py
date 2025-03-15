@@ -114,7 +114,7 @@ def keep_alive():
 # Главное меню
 main_menu = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
 main_menu.add(KeyboardButton("📅 Расписание"), KeyboardButton("📍 Что рядом"))
-main_menu.add(KeyboardButton("📸 Загрузить фото"), KeyboardButton("❓ Помощь с ботом"))
+main_menu.add(KeyboardButton("📸 Загрузить фото"), KeyboardButton("🗺 Маршрут до квартиры"))
 
 # Подменю
 schedule_menu = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
@@ -124,6 +124,14 @@ schedule_menu.add(KeyboardButton("📆 Расписание на дату"), Key
 nearby_menu = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
 nearby_menu.add(KeyboardButton("🚻 Найти туалет"), KeyboardButton("🏛 Найти достопримечательности"))
 nearby_menu.add(KeyboardButton("⬅ Назад в меню"))
+
+# 📍 Обработчик кнопки маршрута до квартиры
+@dp.message_handler(lambda m: m.text == "🗺 Маршрут до квартиры")
+async def send_route_to_apartment(message: types.Message):
+    apartment_address = "Via degli Etruschi, 3, Rome"
+    link = f"https://www.google.com/maps/dir/?api=1&destination={apartment_address.replace(' ', '+')}"
+    await message.answer(f"🗺 Вот маршрут до квартиры:
+[Открыть карту]({link})", disable_web_page_preview=True)
 
 # Обработчики меню
 @dp.message_handler(commands=['start'])
