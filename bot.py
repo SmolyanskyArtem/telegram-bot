@@ -202,13 +202,13 @@ async def send_toilet_map(message: types.Message):
 async def send_attraction_map(message: types.Message):
     url = "https://www.google.com/maps/search/достопримечательности/"
     await message.answer(f"🔍 Вот что я нашёл рядом:\n[Открыть карту с достопримечательностями]({url})", parse_mode='Markdown')
-# 📍 Обработчик кнопки маршрута до квартиры
-@dp.message_handler(lambda m: m.text == "🗘 ️ Маршрут до квартиры")
+# 🗺 Обработчик кнопки "Маршрут до квартиры"
+@dp.message_handler(lambda m: m.text == "🗺 Маршрут до квартиры")
 async def send_route_to_apartment(message: types.Message):
     apartment_address = "Via degli Etruschi, 3, Rome"
     link = f"https://www.google.com/maps/dir/?api=1&destination={apartment_address.replace(' ', '+')}"
-    await message.answer(f"\ud83d\udd78 \u0412\u043e\u0442 \u043c\u0430\u0440\u0448\u0440\u0443\u0442 \u0434\u043e \u043a\u0432\u0430\u0440\u0442\u0438\u0440\u044b:\n[\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u043a\u0430\u0440\u0442\u0443]({link})", disable_web_page_preview=True)
-
+    await message.answer(f"🗺 Вот маршрут до квартиры:\n[Открыть карту]({link})", disable_web_page_preview=True)
+    
 # Загрузка фото
 upload_success_count = {}
 delayed_tasks = {}
