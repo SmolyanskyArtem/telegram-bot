@@ -192,23 +192,16 @@ async def help_message(message: types.Message):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton("⬅ Назад в меню"))
     await message.answer(text, parse_mode='Markdown', reply_markup=keyboard)
 
-@dp.message_handler(lambda m: m.text in ["🚻 Найти туалет", "🏛 Найти достопримечательности"])
-async def start_search(message: types.Message):
-    category = "туалеты" if "туалет" in message.text else "достопримечательности"
-    category_by_user[message.from_user.id] = category
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-    keyboard.add(KeyboardButton("📍 Отправить локацию", request_location=True))
-    await message.answer("Пожалуйста, отправьте вашу локацию:", reply_markup=keyboard)
+# ✅ Обновлённая функция — ссылки на карты без запроса локации
+@dp.message_handler(lambda m: m.text == "🚻 Найти туалет")
+async def send_toilet_map(message: types.Message):
+    url = "https://www.google.com/maps/search/туалеты/"
+    await message.answer(f"🔍 Вот что я нашёл рядом:\n[Открыть карту с туалетами]({url})", parse_mode='Markdown')
 
-# 🔍 Обработка локации и генерация ссылки Google Maps
-@dp.message_handler(content_types=types.ContentType.LOCATION)
-async def handle_location(message: types.Message):
-    user_id = message.from_user.id
-    category = category_by_user.get(user_id, "туалеты")
-    lat = message.location.latitude
-    lon = message.location.longitude
-    link = f"https://www.google.com/maps/search/{category}/@{lat},{lon},17z"
-    await message.answer(f"🔍 Вот что я нашёл рядом:\n[Открыть карту с {category}](<{link}>)", parse_mode='Markdown', reply_markup=main_menu)
+@dp.message_handler(lambda m: m.text == "🏛 Найти достопримечательности")
+async def send_attraction_map(message: types.Message):
+    url = "https://www.google.com/maps/search/достопримечательности/"
+    await message.answer(f"🔍 Вот что я нашёл рядом:\n[Открыть карту с достопримечательностями]({url})", parse_mode='Markdown')
 
 
 # Загрузка фото
