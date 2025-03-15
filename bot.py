@@ -192,7 +192,16 @@ async def help_message(message: types.Message):
     )
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton("⬅ Назад в меню"))
     await message.answer(text, parse_mode='Markdown', reply_markup=keyboard)
-
+# ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Саммари плана на завтра (формат "суперкоротко")
+async def send_tomorrow_summary():
+    date = (datetime.now(timezone("Europe/Rome")).date() + timedelta(days=1)).isoformat()
+    plan = [s for s in schedule if s["дата"] == date]
+    if not plan:
+        return
+    summary = f"Завтра пришлю подробный план дня! А пока краткий план на ({date}): "
+    summary += ", ".join([s['активность'] for s in plan])
+    for uid in user_ids:
+        await bot.send_message(uid, summary)
 # ✅ Обновлённая функция — ссылки на карты без запроса локации
 @dp.message_handler(lambda m: m.text == "🚻 Найти туалет")
 async def send_toilet_map(message: types.Message):
