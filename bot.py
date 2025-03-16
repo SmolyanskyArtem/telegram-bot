@@ -408,6 +408,7 @@ async def send_tomorrow_summary():
 
 # ✅ Уведомления и запуск авторассылок
 # Храним id уже отправленных напоминаний, чтобы не дублировать
+# Храним ID отправленных напоминаний
 sent_reminders = set()
 
 async def check_reminders():
@@ -419,20 +420,32 @@ async def check_reminders():
             event_time = timezone("Europe/Rome").localize(datetime.strptime(f"{s['дата']} {s['время']}", "%Y-%m-%d %H:%M"))
             seconds_until = (event_time - now).total_seconds()
 
-            reminder_id_1h = f"{s['дата']}_{s['время']}_1h"
-            reminder_id_30m = f"{s['дата']}_{s['время']}_30m"
-
             for uid in user_ids:
+                reminder_id_1h = f"{uid}_{s['дата']}_{s['время']}_1h"
+                reminder_id_30m = f"{uid}_{s['дата']}_{s['время']}_30m"
+
+                # Общий текст с ссылками (если есть)
+                links_text = ""
+                if s.get("ссылка"):
+                    links_text += f"\n📍 [Локация]({s['ссылка']})"
+                if s.get("билеты"):
+                    links_text += f"\n🎟 [Билеты]({s['билеты']})"
+
                 # Напоминание за 1 час
-                if 3540 < seconds_until < 3660 and reminder_id_1h not in sent_reminders:
-                    await bot.send_message(uid, f"⏰ Через 1 час — {s['активность']} ({s['место']})")
+                if 3000 < seconds_until < 4200 and reminder_id_1h not in sent_reminders:
+                    msg = f"⏰ Напоминание: через 1 час — *{s['активность']}* ({s['место']}){links_text}"
+                    await bot.send_message(uid, msg, parse_mode='Markdown', disable_web_page_preview=True)
                     sent_reminders.add(reminder_id_1h)
+
                 # Напоминание за 30 минут
-                elif 1740 < seconds_until < 1860 and reminder_id_30m not in sent_reminders:
-                    await bot.send_message(uid, f"⏰ Через 30 минут — {s['активность']} ({s['место']})")
+                elif 1500 < seconds_until < 2100 and reminder_id_30m not in sent_reminders:
+                    msg = f"⏰ Скоро: через 30 минут — *{s['активность']}* ({s['место']}){links_text}"
+                    await bot.send_message(uid, msg, parse_mode='Markdown', disable_web_page_preview=True)
                     sent_reminders.add(reminder_id_30m)
+
         except Exception as e:
-            print(f"Ошибка при расчёте напоминания: {e}")
+            print(f"[Ошибка напоминания] {e}")
+
             continue
 
 async def on_startup(dp):
