@@ -200,9 +200,24 @@ async def send_tomorrow_summary():
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
-    summary = f"📌 Завтра (\[{date}\]) по плану: " + ", ".join(s['активность'] for s in plan)
+
+    summary = [f"📌 План на завтра ({date}):"]
+    for s in plan:
+        time_part = f"{s['время']} — " if s['время'] else ""
+        emoji = "🕐"
+        if any(word in s['активность'].lower() for word in ['обед', 'завтрак', 'ужин']):
+            emoji = "🍽"
+        elif 'прогулка' in s['активность'].lower():
+            emoji = "🚶"
+        elif 'музей' in s['активность'].lower():
+            emoji = "🏛"
+        elif 'поездка' in s['активность'].lower() or 'выезд' in s['активность'].lower():
+            emoji = "🚆"
+        elif 'возвращение' in s['активность'].lower():
+            emoji = "⬅"
+        summary.append(f"{emoji} {time_part}{s['активность']}")
     for uid in user_ids:
-        await bot.send_message(uid, summary)
+        await bot.send_message(uid, "\n".join(summary))
 # ✅ Обновлённая функция — ссылки на карты без запроса локации
 @dp.message_handler(lambda m: m.text == "🚻 Найти туалет")
 async def send_toilet_map(message: types.Message):
@@ -416,7 +431,7 @@ async def on_startup(dp):
     keep_alive()
     rome = timezone("Europe/Rome")
     scheduler.add_job(send_daily, 'cron', hour=8, timezone=rome)
-    scheduler.add_job(send_tomorrow_summary, 'cron', hour=6, timezone=rome)
+    scheduler.add_job(send_tomorrow_summary, 'cron', hour=7, timezone=rome)
     scheduler.add_job(check_reminders, 'interval', minutes=1)
     scheduler.start()
 
