@@ -31,10 +31,10 @@ CATEGORY_OVERPASS = {
 }
 schedule = [
     {"дата": "2025-03-16", "время": "", "активность": "Прогулка по площади Капитолия и музеям", "место": "Капитолий", "ссылка": "https://www.google.com/maps?q=Capitoline+Hill,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
-    {"дата": "2025-03-16", "время": "18:50", "активность": "Обед", "место": "Pasta Chef Monti", "ссылка": "https://www.google.com/maps?q=Pasta+Chef+Monti,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
+    {"дата": "2025-03-16", "время": "19:10", "активность": "Обед", "место": "Pasta Chef Monti", "ссылка": "https://www.google.com/maps?q=Pasta+Chef+Monti,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
+    {"дата": "2025-03-16", "время": "18:54", "активность": "Обед", "место": "Pasta Chef Monti", "ссылка": "https://www.google.com/maps?q=Pasta+Chef+Monti,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
     {"дата": "2025-03-16", "время": "18:49", "активность": "Обед", "место": "Pasta Chef Monti", "ссылка": "https://www.google.com/maps?q=Pasta+Chef+Monti,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
-    {"дата": "2025-03-16", "время": "18:19", "активность": "Обед", "место": "Pasta Chef Monti", "ссылка": "https://www.google.com/maps?q=Pasta+Chef+Monti,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
-    {"дата": "2025-03-16", "время": "18:41", "активность": "Колизей, Римский форум и Палатин", "место": "Колизей", "ссылка": "https://www.google.com/maps?q=Колизей,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
+    {"дата": "2025-03-16", "время": "19:12", "активность": "Колизей, Римский форум и Палатин", "место": "Колизей", "ссылка": "https://www.google.com/maps?q=Колизей,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
     {"дата": "2025-03-16", "время": "18:11", "активность": "Визит в Giolitti", "место": "Giolitti", "ссылка": "https://maps.app.goo.gl/WX9HLF6VAxmd4mpQ8", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
     {"дата": "2025-03-16", "время": "18:51", "активность": "Ужин дома", "место": "Квартира", "ссылка": "https://maps.app.goo.gl/L7VB6bvHHaUJwy89A", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
     {"дата": "2025-03-17", "время": "18:21", "активность": "Прогулка по площади Капитолия и музеям", "место": "Капитолий", "ссылка": "https://www.google.com/maps?q=Capitoline+Hill,+Rome,+Italy", "билеты": ""},
