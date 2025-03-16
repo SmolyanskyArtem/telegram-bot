@@ -195,7 +195,7 @@ async def help_message(message: types.Message):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton("⬅ Назад в меню"))
     await message.answer(text, parse_mode='Markdown', reply_markup=keyboard)
 # ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Саммари плана на завтра (формат "суперкоротко")
-async def send_tomorrow_():
+async def send_tomorrow_summary():
     date = (datetime.now(timezone("Europe/Rome")).date() + timedelta(days=1)).isoformat()
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
