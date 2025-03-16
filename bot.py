@@ -32,7 +32,7 @@ CATEGORY_OVERPASS = {
 schedule = [
     {"дата": "2025-03-16", "время": "", "активность": "Прогулка по площади Капитолия и музеям", "место": "Капитолий", "ссылка": "https://www.google.com/maps?q=Capitoline+Hill,+Rome,+Italy", "билеты": ""},
     {"дата": "2025-03-16", "время": "", "активность": "Обед", "место": "Pasta Chef Monti", "ссылка": "https://www.google.com/maps?q=Pasta+Chef+Monti,+Rome,+Italy", "билеты": ""},
-    {"дата": "2025-03-16", "время": "15:30", "активность": "Колизей, Римский форум и Палатин", "место": "Колизей", "ссылка": "https://www.google.com/maps?q=Колизей,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
+    {"дата": "2025-03-16", "время": "17:55", "активность": "Колизей, Римский форум и Палатин", "место": "Колизей", "ссылка": "https://www.google.com/maps?q=Колизей,+Rome,+Italy", "билеты": "https://disk.yandex.ru/d/xyeIkcyScxrwPw"},
     {"дата": "2025-03-16", "время": "", "активность": "Визит в Giolitti", "место": "Giolitti", "ссылка": "https://maps.app.goo.gl/WX9HLF6VAxmd4mpQ8", "билеты": ""},
     {"дата": "2025-03-16", "время": "", "активность": "Ужин дома", "место": "Квартира", "ссылка": "https://maps.app.goo.gl/L7VB6bvHHaUJwy89A", "билеты": ""},
     {"дата": "2025-03-17", "время": "", "активность": "Прогулка по площади Капитолия и музеям", "место": "Капитолий", "ссылка": "https://www.google.com/maps?q=Capitoline+Hill,+Rome,+Italy", "билеты": ""},
@@ -369,7 +369,7 @@ async def send_today_plan():
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
-    text = f"📅 План на сегодня ({date}):"
+    text = f"📅 План на сегодня:"
     for s in plan:
         time_part = f"{s['время']} — " if s['время'] else ""
         text += f"\n🕘 {time_part}{s['активность']} ({s['место']})"
@@ -382,7 +382,7 @@ async def send_tomorrow_summary():
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
-    summary = [f"📌 Завтра ({date}) в плане:"]
+    summary = [f"📌 Давай посмотрим обзор планов на завтра!"]
     for s in plan:
         emoji = "🕐"
         if any(word in s['активность'].lower() for word in ['обед', 'завтрак', 'ужин']):
@@ -405,6 +405,8 @@ async def send_tomorrow_summary():
         await bot.send_message(uid, "\n".join(summary))
 
 # ✅ Уведомления и запуск авторассылок
+sent_reminders = {}
+
 async def check_reminders():
     now = datetime.now(timezone("Europe/Rome"))
     for s in schedule:
@@ -413,19 +415,28 @@ async def check_reminders():
         try:
             evt = timezone("Europe/Rome").localize(datetime.strptime(f"{s['дата']} {s['время']}", "%Y-%m-%d %H:%M"))
             secs = (evt - now).total_seconds()
+
             for uid in user_ids:
-                if 3540 < secs < 3660:
+                key_1h = f"{uid}_{s['дата']}_{s['время']}_1h"
+                key_30m = f"{uid}_{s['дата']}_{s['время']}_30m"
+
+                # Напоминание за 1 час
+                if 3540 < secs < 3660 and key_1h not in sent_reminders:
                     await bot.send_message(uid, f"⏰ Напоминание: через 1 час — {s['активность']} ({s['место']})")
-                elif 1740 < secs < 1860:
+                    sent_reminders[key_1h] = True
+
+                # Напоминание за 30 минут
+                elif 1740 < secs < 1860 and key_30m not in sent_reminders:
                     await bot.send_message(uid, f"⏰ Скоро: через 30 минут — {s['активность']} ({s['место']})")
+                    sent_reminders[key_30m] = True
         except:
             continue
 
 async def on_startup(dp):
     keep_alive()
     rome = timezone("Europe/Rome")
-    scheduler.add_job(send_today_plan, 'cron', hour=12, minute=30, timezone=rome)
-    scheduler.add_job(send_tomorrow_summary, 'cron', hour=12, minute=30, timezone=rome)
+    scheduler.add_job(send_today_plan, 'cron', hour=8, minute=00, timezone=rome)
+    scheduler.add_job(send_tomorrow_summary, 'cron', hour=20, minute=00, timezone=rome)
     scheduler.add_job(check_reminders, 'interval', minutes=1)
     scheduler.start()
 
