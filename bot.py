@@ -405,31 +405,32 @@ async def send_tomorrow_summary():
         await bot.send_message(uid, "\n".join(summary))
 
 # ✅ Уведомления и запуск авторассылок
-sent_reminders = {}
+# Храним id уже отправленных напоминаний, чтобы не дублировать
+sent_reminders = set()
 
 async def check_reminders():
     now = datetime.now(timezone("Europe/Rome"))
     for s in schedule:
-        if not s.get("билеты"):
+        if not s.get("билеты") or not s.get("время"):
             continue
         try:
-            evt = timezone("Europe/Rome").localize(datetime.strptime(f"{s['дата']} {s['время']}", "%Y-%m-%d %H:%M"))
-            secs = (evt - now).total_seconds()
+            event_time = timezone("Europe/Rome").localize(datetime.strptime(f"{s['дата']} {s['время']}", "%Y-%m-%d %H:%M"))
+            seconds_until = (event_time - now).total_seconds()
+
+            reminder_id_1h = f"{s['дата']}_{s['время']}_1h"
+            reminder_id_30m = f"{s['дата']}_{s['время']}_30m"
 
             for uid in user_ids:
-                key_1h = f"{uid}_{s['дата']}_{s['время']}_1h"
-                key_30m = f"{uid}_{s['дата']}_{s['время']}_30m"
-
                 # Напоминание за 1 час
-                if 3540 < secs < 3660 and key_1h not in sent_reminders:
-                    await bot.send_message(uid, f"⏰ Напоминание: через 1 час — {s['активность']} ({s['место']})")
-                    sent_reminders[key_1h] = True
-
+                if 3540 < seconds_until < 3660 and reminder_id_1h not in sent_reminders:
+                    await bot.send_message(uid, f"⏰ Через 1 час — {s['активность']} ({s['место']})")
+                    sent_reminders.add(reminder_id_1h)
                 # Напоминание за 30 минут
-                elif 1740 < secs < 1860 and key_30m not in sent_reminders:
-                    await bot.send_message(uid, f"⏰ Скоро: через 30 минут — {s['активность']} ({s['место']})")
-                    sent_reminders[key_30m] = True
-        except:
+                elif 1740 < seconds_until < 1860 and reminder_id_30m not in sent_reminders:
+                    await bot.send_message(uid, f"⏰ Через 30 минут — {s['активность']} ({s['место']})")
+                    sent_reminders.add(reminder_id_30m)
+        except Exception as e:
+            print(f"Ошибка при расчёте напоминания: {e}")
             continue
 
 async def on_startup(dp):
