@@ -428,7 +428,7 @@ async def on_startup(dp):
     keep_alive()
     rome = timezone("Europe/Rome")
     scheduler.add_job(send_daily, 'cron', hour=8, timezone=rome)
-    scheduler.add_job(send_tomorrow_summary, 'cron', hour=7, timezone=rome)
+    scheduler.add_job(send_tomorrow_summary, 'cron', hour=8, timezone=rome)
     scheduler.add_job(check_reminders, 'interval', minutes=1)
     scheduler.start()
 
