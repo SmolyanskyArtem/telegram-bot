@@ -180,50 +180,7 @@ async def send_plan_for_date(message, date_str, title):
                 text += f" 🎟 [билеты]({s['билеты']})"
         await message.answer(text, disable_web_page_preview=True)
 
-@dp.message_handler(lambda m: m.text == "❓ Помощь с ботом")
-async def help_message(message: types.Message):
-    text = (
-        "Привет! Я рядом и готов помочь 😊\n\n"
-        "Вот что я умею:\n"
-        "📅 *Сегодня / Завтра* — расскажу, что у нас в плане\n"
-        "📆 *Расписание на дату* — просто напиши дату, например: 2025-03-25\n"
-        "🚻 / 🏛 — подскажу, что интересного рядом (туалеты и достопримечательности)\n"
-        "📸 *Загрузка фото* — кидай фотки, всё сохраню\n"
-        "🗺 *Маршрут до квартиры* — покажу путь\n"
-        "⬅ *Назад в меню* — если запутался, просто нажми 😊"
-    )
-    keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton("⬅ Назад в меню"))
-    await message.answer(text, parse_mode='Markdown', reply_markup=keyboard)
-# ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Саммари плана на завтра (формат "суперкоротко")
-async def send_tomorrow_summary():
-    date = (datetime.now(timezone("Europe/Rome")).date() + timedelta(days=1)).isoformat()
-    plan = [s for s in schedule if s["дата"] == date]
-    if not plan:
-        return
 
-    summary = [f"📌 Завтра ({date}) в плане:"]
-    for s in plan:
-        emoji = "🕐"
-        if any(word in s['активность'].lower() for word in ['обед', 'завтрак', 'ужин']):
-            emoji = "🍽"
-        elif 'прогулка' in s['активность'].lower():
-            emoji = "🚶"
-        elif 'музей' in s['активность'].lower():
-            emoji = "🏛"
-        elif any(word in s['активность'].lower() for word in ['поездка', 'выезд', 'переезд']):
-            emoji = "🚆"
-        elif 'возвращение' in s['активность'].lower():
-            emoji = "⬅"
-        elif 'giolitti' in s['активность'].lower():
-            emoji = "🍨"
-        elif 'билеты' in s['активность'].lower():
-            emoji = "🎟"
-
-        time_part = f"{s['время']} — " if s['время'] else ""
-        summary.append(f"{emoji} {time_part}{s['активность']}")
-
-    for uid in user_ids:
-        await bot.send_message(uid, "\n".join(summary))
 # ✅ Обновлённая функция — ссылки на карты без запроса локации
 @dp.message_handler(lambda m: m.text == "🚻 Найти туалет")
 async def send_toilet_map(message: types.Message):
@@ -406,15 +363,53 @@ async def apply_new_value(message: types.Message, state: FSMContext):
     await message.answer("Готово! Всё поменял ✨")
     await state.finish()
 
-# Автоуведомления
-async def send_daily():
+# ✅ Обновлённая функция: План на сегодня
+async def send_today_plan():
+    date = datetime.now(timezone("Europe/Rome")).date().isoformat()
+    plan = [s for s in schedule if s["дата"] == date]
+    if not plan:
+        return
+    text = f"📅 План на сегодня ({date}):"
+    for s in plan:
+        time_part = f"{s['время']} — " if s['время'] else ""
+        text += f"\n🕘 {time_part}{s['активность']} ({s['место']})"
     for uid in user_ids:
-        await send_today(types.Message(message_id=0, chat=types.Chat(id=uid, type='private')))
+        await bot.send_message(uid, text)
 
+# ✅ Обновлённая функция: Саммари плана на завтра с эмодзи и временем
+async def send_tomorrow_summary():
+    date = (datetime.now(timezone("Europe/Rome")).date() + timedelta(days=1)).isoformat()
+    plan = [s for s in schedule if s["дата"] == date]
+    if not plan:
+        return
+    summary = [f"📌 Завтра ({date}) в плане:"]
+    for s in plan:
+        emoji = "🕐"
+        if any(word in s['активность'].lower() for word in ['обед', 'завтрак', 'ужин']):
+            emoji = "🍽"
+        elif 'прогулка' in s['активность'].lower():
+            emoji = "🚶"
+        elif 'музей' in s['активность'].lower():
+            emoji = "🏛"
+        elif any(word in s['активность'].lower() for word in ['поездка', 'выезд', 'переезд']):
+            emoji = "🚆"
+        elif 'возвращение' in s['активность'].lower():
+            emoji = "⬅"
+        elif 'giolitti' in s['активность'].lower():
+            emoji = "🍨"
+        elif 'билеты' in s['активность'].lower():
+            emoji = "🎟"
+        time_part = f"{s['время']} — " if s['время'] else ""
+        summary.append(f"{emoji} {time_part}{s['активность']}")
+    for uid in user_ids:
+        await bot.send_message(uid, "\n".join(summary))
+
+# ✅ Уведомления и запуск авторассылок
 async def check_reminders():
     now = datetime.now(timezone("Europe/Rome"))
     for s in schedule:
-        if not s.get("билеты"): continue
+        if not s.get("билеты"):
+            continue
         try:
             evt = timezone("Europe/Rome").localize(datetime.strptime(f"{s['дата']} {s['время']}", "%Y-%m-%d %H:%M"))
             secs = (evt - now).total_seconds()
@@ -423,14 +418,17 @@ async def check_reminders():
                     await bot.send_message(uid, f"⏰ Напоминание: через 1 час — {s['активность']} ({s['место']})")
                 elif 1740 < secs < 1860:
                     await bot.send_message(uid, f"⏰ Скоро: через 30 минут — {s['активность']} ({s['место']})")
-        except: continue
+        except:
+            continue
+
 async def on_startup(dp):
     keep_alive()
     rome = timezone("Europe/Rome")
-    scheduler.add_job(send_daily, 'cron', hour=8, timezone=rome)
-    scheduler.add_job(send_tomorrow_summary, 'cron', hour=8, timezone=rome)
+    scheduler.add_job(send_today_plan, 'cron', hour=8, timezone=rome)
+    scheduler.add_job(send_tomorrow_summary, 'cron', hour=20, timezone=rome)
     scheduler.add_job(check_reminders, 'interval', minutes=1)
     scheduler.start()
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
