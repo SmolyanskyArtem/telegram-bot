@@ -201,9 +201,8 @@ async def send_tomorrow_summary():
     if not plan:
         return
 
-     = [f"📌 План на завтра ({date}):"]
+    summary = [f"📌 Завтра ({date}) в плане:"]
     for s in plan:
-        time_part = f"{s['время']} — " if s['время'] else ""
         emoji = "🕐"
         if any(word in s['активность'].lower() for word in ['обед', 'завтрак', 'ужин']):
             emoji = "🍽"
@@ -211,13 +210,20 @@ async def send_tomorrow_summary():
             emoji = "🚶"
         elif 'музей' in s['активность'].lower():
             emoji = "🏛"
-        elif 'поездка' in s['активность'].lower() or 'выезд' in s['активность'].lower():
+        elif any(word in s['активность'].lower() for word in ['поездка', 'выезд', 'переезд']):
             emoji = "🚆"
         elif 'возвращение' in s['активность'].lower():
             emoji = "⬅"
-        .append(f"{emoji} {time_part}{s['активность']}")
+        elif 'giolitti' in s['активность'].lower():
+            emoji = "🍨"
+        elif 'билеты' in s['активность'].lower():
+            emoji = "🎟"
+
+        time_part = f"{s['время']} — " if s['время'] else ""
+        summary.append(f"{emoji} {time_part}{s['активность']}")
+
     for uid in user_ids:
-        await bot.send_message(uid, "\n".join())
+        await bot.send_message(uid, "\n".join(summary))
 # ✅ Обновлённая функция — ссылки на карты без запроса локации
 @dp.message_handler(lambda m: m.text == "🚻 Найти туалет")
 async def send_toilet_map(message: types.Message):
