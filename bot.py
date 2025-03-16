@@ -195,13 +195,13 @@ async def help_message(message: types.Message):
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True).add(KeyboardButton("⬅ Назад в меню"))
     await message.answer(text, parse_mode='Markdown', reply_markup=keyboard)
 # ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Саммари плана на завтра (формат "суперкоротко")
-async def send_tomorrow_summary():
+async def send_tomorrow_():
     date = (datetime.now(timezone("Europe/Rome")).date() + timedelta(days=1)).isoformat()
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
 
-    summary = [f"📌 План на завтра ({date}):"]
+     = [f"📌 План на завтра ({date}):"]
     for s in plan:
         time_part = f"{s['время']} — " if s['время'] else ""
         emoji = "🕐"
@@ -215,9 +215,9 @@ async def send_tomorrow_summary():
             emoji = "🚆"
         elif 'возвращение' in s['активность'].lower():
             emoji = "⬅"
-        summary.append(f"{emoji} {time_part}{s['активность']}")
+        .append(f"{emoji} {time_part}{s['активность']}")
     for uid in user_ids:
-        await bot.send_message(uid, "\n".join(summary))
+        await bot.send_message(uid, "\n".join())
 # ✅ Обновлённая функция — ссылки на карты без запроса локации
 @dp.message_handler(lambda m: m.text == "🚻 Найти туалет")
 async def send_toilet_map(message: types.Message):
@@ -404,15 +404,6 @@ async def apply_new_value(message: types.Message, state: FSMContext):
 async def send_daily():
     for uid in user_ids:
         await send_today(types.Message(message_id=0, chat=types.Chat(id=uid, type='private')))
-# ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Саммари плана на завтра (формат "суперкоротко")
-async def send_tomorrow_summary():
-    date = (datetime.now(timezone("Europe/Rome")).date() + timedelta(days=1)).isoformat()
-    plan = [s for s in schedule if s["дата"] == date]
-    if not plan:
-        return
-    summary = f"📌 Завтра ({date}) по плану: " + ", ".join(s['активность'] for s in plan)
-    for uid in user_ids:
-        await bot.send_message(uid, summary)
 
 async def check_reminders():
     now = datetime.now(timezone("Europe/Rome"))
