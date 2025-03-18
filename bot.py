@@ -407,7 +407,7 @@ async def send_tomorrow_summary():
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
-    summary = [f"📌 Итак, коротко про планы на завтра!"]
+    summary = ["📌 День подходит к концу! Коротко про планы на завтра:"]
     for s in plan:
         emoji = "🕐"
         if any(word in s['активность'].lower() for word in ['обед', 'завтрак', 'ужин']):
@@ -426,8 +426,9 @@ async def send_tomorrow_summary():
             emoji = "🎟"
         time_part = f"{s['время']} — " if s['время'] else ""
         summary.append(f"{emoji} {time_part}{s['активность']}")
+    summary.append("\n📷 Не забывай загружать фотки и смотри их тут: [Яндекс.Диск](https://disk.yandex.ru/d/nrOTg5cbjwywxA)")
     for uid in user_ids:
-        await bot.send_message(uid, "\n".join(summary))
+        await bot.send_message(uid, "\n".join(summary), disable_web_page_preview=True)
 
 # ✅ Уведомления и запуск авторассылок
 # Храним id уже отправленных напоминаний, чтобы не дублировать
@@ -475,7 +476,7 @@ async def on_startup(dp):
     keep_alive()
     rome = timezone("Europe/Rome")
     scheduler.add_job(send_today_plan, 'cron', hour=8, minute=00, timezone=rome)
-    scheduler.add_job(send_tomorrow_summary, 'cron', hour=20, minute=30, timezone=rome)
+    scheduler.add_job(send_tomorrow_summary, 'cron', hour=20, minute=36, timezone=rome)
     scheduler.add_job(check_reminders, 'interval', minutes=1)
     scheduler.start()
 
