@@ -203,9 +203,6 @@ async def send_route_to_apartment(message: types.Message):
     link = f"https://www.google.com/maps/dir/?api=1&destination={apartment_address.replace(' ', '+')}"
     await message.answer(f"🗺 Вот маршрут до квартиры:\n[Открыть карту]({link})", disable_web_page_preview=True)
     
-@dp.message_handler(commands=['тестзавтра'])
-async def test_send_tomorrow(message: types.Message):
-    await send_tomorrow_summary()
 # Загрузка фото
 upload_success_count = {}
 delayed_tasks = {}
@@ -433,6 +430,10 @@ async def send_tomorrow_summary():
     for uid in user_ids:
         await bot.send_message(uid, "\n".join(summary), disable_web_page_preview=True)
 
+@dp.message_handler(commands=['тестзавтра'])
+async def test_send_tomorrow(message: types.Message):
+    await send_tomorrow_summary()
+    
 # ✅ Уведомления и запуск авторассылок
 # Храним id уже отправленных напоминаний, чтобы не дублировать
 # Храним ID отправленных напоминаний
