@@ -407,7 +407,7 @@ async def send_tomorrow_summary():
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
-    summary = ["📌 День подходит к концу! Коротко про планы на завтра:"]
+    summary = ["📌 *День подходит к концу!*", "", "📋 *Коротко про планы на завтра:*"]
     for s in plan:
         emoji = "🕐"
         if any(word in s['активность'].lower() for word in ['обед', 'завтрак', 'ужин']):
@@ -426,9 +426,19 @@ async def send_tomorrow_summary():
             emoji = "🎟"
         time_part = f"{s['время']} — " if s['время'] else ""
         summary.append(f"{emoji} {time_part}{s['активность']}")
-    summary.append("\n📷 Не забывай загружать фотки и смотри их тут: [Яндекс.Диск](https://disk.yandex.ru/d/nrOTg5cbjwywxA)")
+
+    # 📷 ВЫДЕЛЕННЫЙ БЛОК ПРО ФОТО
+    summary += [
+        "",
+        "━━━━━━━━━━━━━━━",
+        "📸 *Не забывай загружать фотки!*",
+        "📂 [Смотреть на Яндекс.Диске](https://disk.yandex.ru/d/nrOTg5cbjwywxA)",
+        "━━━━━━━━━━━━━━━"
+    ]
+
     for uid in user_ids:
-        await bot.send_message(uid, "\n".join(summary), disable_web_page_preview=True)
+        await bot.send_message(uid, "\n".join(summary), parse_mode="Markdown", disable_web_page_preview=True)
+
 
 @dp.message_handler(commands=['тестзавтра'])
 async def test_send_tomorrow(message: types.Message):
