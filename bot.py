@@ -374,12 +374,32 @@ async def send_today_plan():
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
-    text = f"📅 План на сегодня:"
+    text = f"📅 План на сегодня:\n"
     for s in plan:
         time_part = f"{s['время']} — " if s['время'] else ""
-        text += f"\n🕘 {time_part}{s['активность']} ({s['место']})"
+        emoji = "🕐"
+        if any(word in s['активность'].lower() for word in ['обед', 'завтрак', 'ужин']):
+            emoji = "🍽"
+        elif 'прогулка' in s['активность'].lower():
+            emoji = "🚶"
+        elif 'музей' in s['активность'].lower():
+            emoji = "🏛"
+        elif any(word in s['активность'].lower() for word in ['поездка', 'выезд', 'переезд']):
+            emoji = "🚆"
+        elif 'возвращение' in s['активность'].lower():
+            emoji = "⬅"
+        elif 'giolitti' in s['активность'].lower():
+            emoji = "🍨"
+        elif 'билеты' in s['активность'].lower():
+            emoji = "🎟"
+        text += f"\n{emoji} {time_part}{s['активность']} ({s['место']})"
+        if s.get("ссылка"):
+            text += f" → [локация]({s['ссылка']})"
+        if s.get("билеты"):
+            text += f" 🎟 [билеты]({s['билеты']})"
     for uid in user_ids:
-        await bot.send_message(uid, text)
+        await bot.send_message(uid, text, disable_web_page_preview=True)
+
 
 # ✅ Обновлённая функция: Саммари плана на завтра с эмодзи и временем
 async def send_tomorrow_summary():
