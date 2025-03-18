@@ -428,7 +428,8 @@ async def send_tomorrow_summary():
         summary.append(f"{emoji} {time_part}{s['активность']}")
 
  # 🔽 Добавляем выделенный блок-инструкцию про фото
-    summary.append("\n📸 *Как сохранить фотографии?*")
+   summary.append("\n────────────")
+    summary.append("📸 *Как сохранить фотографии?*")
     summary.append("1️⃣ Нажмите внизу кнопку *«📸 Загрузить фото»*")
     summary.append("2️⃣ Отправьте свои фотографии прямо сюда")
     summary.append("Я всё аккуратно сохраню на диск.")
