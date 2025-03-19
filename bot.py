@@ -404,7 +404,7 @@ async def send_today_plan():
             text += f" 🎟 [билеты]({s['билеты']})"
 
     text += "\n\n────────────"
-    text += "\n*N.B.* Нажмите кнопку *«📍 Что рядом»* внизу экрана, чтобы найти туалеты 🚻 и достопримечательности 🏛 рядом."
+    text += "\nНажмите кнопку *«📍 Что рядом»* внизу экрана, чтобы найти туалеты 🚻 и достопримечательности 🏛 рядом."
 
     for uid in user_ids:
         await bot.send_message(uid, text, parse_mode="Markdown", disable_web_page_preview=True)
