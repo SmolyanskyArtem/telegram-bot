@@ -523,6 +523,14 @@ async def toggle_text_mode(message: types.Message):
     status = "включён" if not current else "выключен"
     await message.answer(f"📝 Режим крупного текста {status}.")
 
+@dp.message_handler(commands=['перезапуск'])
+async def restart_command(message: types.Message):
+    await restart_for_all_users()
+
+async def restart_for_all_users():
+    for uid in user_ids:
+        await bot.send_message(uid, "Привет! Я снова с вами 😊 Пожалуйста, нажмите /start, чтобы продолжить.")
+
 
 user_settings = {}
 
