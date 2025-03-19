@@ -369,12 +369,27 @@ async def apply_new_value(message: types.Message, state: FSMContext):
     await state.finish()
 
 # ✅ Обновлённая функция: План на сегодня
+import random  # не забудь добавить в начале файла, если ещё не добавлено
+
+# ✅ Обновлённая функция: План на сегодня с приветствием
 async def send_today_plan():
     date = datetime.now(timezone("Europe/Rome")).date().isoformat()
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
-    text = f"📅 План на сегодня:\n"
+
+    greetings = [
+        "🌞 Buongiorno! Pronti per una nuova giornata?",
+        "🌞 Ciao! Iniziamo questa bella giornata insieme!",
+        "🌞 Buona giornata! Ecco cosa ci aspetta oggi!",
+        "🌞 Salve! Che bel programma abbiamo per oggi!",
+        "🌞 Ciao a tutti! Siete pronti per un’avventura?",
+        "🌞 Buon inizio di giornata!",
+        "🌞 Oggi sarà una giornata fantastica!"
+    ]
+    greeting = random.choice(greetings)
+
+    text = f"{greeting}\n\n📅 *План на сегодня:*"
     for s in plan:
         time_part = f"{s['время']} — " if s['время'] else ""
         emoji = "🕐"
@@ -397,14 +412,16 @@ async def send_today_plan():
             text += f" → [локация]({s['ссылка']})"
         if s.get("билеты"):
             text += f" 🎟 [билеты]({s['билеты']})"
+
     # Добавляем блок-инструкцию про "Что рядом"
     text += "\n\n────────────"
-    text += "\n*Нужно что-то поблизости?*"
-    text += "\nНажмите кнопку *«📍 Что рядом»* внизу экрана"
-    text += "\nчтобы найти туалеты 🚻 и достопримечательности 🏛 рядом."
+    text += "\n📍 *Нужно что-то поблизости?*"
+    text += "\nНажмите внизу кнопку *«📍 Что рядом»* —"
+    text += "\nнайдём туалеты 🚻 и достопримечательности 🏛 рядом."
 
     for uid in user_ids:
         await bot.send_message(uid, text, parse_mode="Markdown", disable_web_page_preview=True)
+
 
 
 
