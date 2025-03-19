@@ -509,7 +509,7 @@ async def restart_command(message: types.Message):
 
 async def restart_for_all_users():
     for uid in user_ids:
-        await bot.send_message(uid, "CIao! Появилось немного обновлений 😊 Пожалуйста, нажми /start, чтобы продолжить.")
+        await bot.send_message(uid, "Ciao! Появилось немного обновлений 😊 Пожалуйста, нажми /start, чтобы продолжить.")
 
 
 user_settings = {}
