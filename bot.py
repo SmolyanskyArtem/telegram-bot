@@ -481,13 +481,13 @@ async def check_reminders():
                     links_text += f"\n🎟 [Билеты]({s['билеты']})"
 
                 # Напоминание за 1 час
-                if 3000 < seconds_until < 4200 and reminder_id_1h not in sent_reminders:
+                if 3540 <= seconds_until <= 3660 and reminder_id_1h not in sent_reminders:
                     msg = f"⏰ Напоминание: через 1 час — *{s['активность']}* ({s['место']}){links_text}"
                     await bot.send_message(uid, msg, parse_mode='Markdown', disable_web_page_preview=True)
                     sent_reminders.add(reminder_id_1h)
 
                 # Напоминание за 30 минут
-                elif 1500 < seconds_until < 2100 and reminder_id_30m not in sent_reminders:
+                elif 1740 <= seconds_until <= 1860 and reminder_id_30m not in sent_reminders:
                     msg = f"⏰ Скоро: через 30 минут — *{s['активность']}* ({s['место']}){links_text}"
                     await bot.send_message(uid, msg, parse_mode='Markdown', disable_web_page_preview=True)
                     sent_reminders.add(reminder_id_30m)
