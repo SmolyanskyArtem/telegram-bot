@@ -178,12 +178,27 @@ async def send_plan_for_date(message, date_str, title):
     else:
         text = f"{title}:\n"
         for s in plan:
-            text += f"\n🕘 {s['время']} — {s['активность']} ({s['место']})"
-            if s["ссылка"]:
-                text += f" → [локация]({s['ссылка']})"
-            if s["билеты"]:
+            time_part = f"{s['время']} — " if s['время'] else ""
+            emoji = "🕐"
+            if any(word in s['активность'].lower() for word in ['обед', 'завтрак', 'ужин']):
+                emoji = "🍽"
+            elif 'прогулка' in s['активность'].lower():
+                emoji = "🚶"
+            elif 'музей' in s['активность'].lower():
+                emoji = "🏛"
+            elif any(word in s['активность'].lower() for word in ['поездка', 'выезд', 'переезд']):
+                emoji = "🚆"
+            elif 'возвращение' in s['активность'].lower():
+                emoji = "⬅"
+            elif 'giolitti' in s['активность'].lower():
+                emoji = "🍨"
+            elif 'билеты' in s['активность'].lower():
+                emoji = "🎟"
+            location_text = f"[{s['место']}]({s['ссылка']})" if s.get("ссылка") else s['место']
+            text += f"\n{emoji} {time_part}{s['активность']} ({location_text})"
+            if s.get("билеты"):
                 text += f" 🎟 [билеты]({s['билеты']})"
-        await message.answer(text, disable_web_page_preview=True)
+        await message.answer(text, parse_mode="Markdown", disable_web_page_preview=True)
 
 
 # ✅ Обновлённая функция — ссылки на карты без запроса локации
