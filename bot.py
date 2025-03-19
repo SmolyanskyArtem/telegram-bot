@@ -379,13 +379,12 @@ async def send_today_plan():
         return
 
     greetings = [
-        "🌞 Buongiorno! Pronti per una nuova giornata?",
-        "🌞 Ciao! Iniziamo questa bella giornata insieme!",
-        "🌞 Buona giornata! Ecco cosa ci aspetta oggi!",
-        "🌞 Salve! Che bel programma abbiamo per oggi!",
-        "🌞 Ciao a tutti! Siete pronti per un’avventura?",
-        "🌞 Buon inizio di giornata!",
-        "🌞 Oggi sarà una giornata fantastica!"
+        "🌞 Buongiorno!",
+        "🌞 Ciao!",
+        "🌞 Buona giornata!",
+        "🌞 Salve!",
+        "🌞 Ciao a tutti!",
+        "🌞 Buon inizio di giornata!"
     ]
     greeting = random.choice(greetings)
 
