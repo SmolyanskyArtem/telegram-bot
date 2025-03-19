@@ -515,6 +515,17 @@ async def check_reminders():
 
             continue
 
+@dp.message_handler(commands=['режим'])
+async def toggle_text_mode(message: types.Message):
+    uid = message.from_user.id
+    current = user_settings.get(uid, {}).get('large_text', False)
+    user_settings[uid] = {'large_text': not current}
+    status = "включён" if not current else "выключен"
+    await message.answer(f"📝 Режим крупного текста {status}.")
+
+
+user_settings = {}
+
 async def on_startup(dp):
     keep_alive()
     rome = timezone("Europe/Rome")
