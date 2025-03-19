@@ -377,18 +377,10 @@ async def send_today_plan():
     plan = [s for s in schedule if s["дата"] == date]
     if not plan:
         return
-
-    greetings = [
-        "🌞 Buongiorno!",
-        "🌞 Ciao!",
-        "🌞 Buona giornata!",
-        "🌞 Salve!",
-        "🌞 Ciao a tutti!",
-        "🌞 Buon inizio di giornata!"
-    ]
+    text = f"📅 План на сегодня:\n"
+    greetings = ["Buongiorno! ☀️", "Ciao e buona giornata! 😊", "Buona mattina a tutti! 🌸", "Che bella giornata oggi! 🌞", "Un abbraccio e buona giornata! 🤗"]
     greeting = random.choice(greetings)
-
-    text = f"{greeting}\n\n📅 *План на сегодня:*"
+    text = greeting + "\n" + text
     for s in plan:
         time_part = f"{s['время']} — " if s['время'] else ""
         emoji = "🕐"
@@ -406,17 +398,13 @@ async def send_today_plan():
             emoji = "🍨"
         elif 'билеты' in s['активность'].lower():
             emoji = "🎟"
-        text += f"\n{emoji} {time_part}{s['активность']} ({s['место']})"
-        if s.get("ссылка"):
-            text += f" → [локация]({s['ссылка']})"
+        location_text = f"[{s['место']}]({s['ссылка']})" if s.get("ссылка") else s['место']
+        text += f"\n{emoji} {time_part}{s['активность']} ({location_text})"
         if s.get("билеты"):
             text += f" 🎟 [билеты]({s['билеты']})"
 
-    # Добавляем блок-инструкцию про "Что рядом"
     text += "\n\n────────────"
-    text += "\n📍 *Нужно что-то поблизости?*"
-    text += "\nНажмите внизу кнопку *«📍 Что рядом»* —"
-    text += "\nнайдём туалеты 🚻 и достопримечательности 🏛 рядом."
+    text += "\n*N.B.* Нажмите кнопку *«📍 Что рядом»* внизу экрана, чтобы найти туалеты 🚻 и достопримечательности 🏛 рядом."
 
     for uid in user_ids:
         await bot.send_message(uid, text, parse_mode="Markdown", disable_web_page_preview=True)
@@ -448,17 +436,16 @@ async def send_tomorrow_summary():
         elif 'билеты' in s['активность'].lower():
             emoji = "🎟"
         time_part = f"{s['время']} — " if s['время'] else ""
-        summary.append(f"{emoji} {time_part}{s['активность']}")
+        location_text = f"[{s['место']}]({s['ссылка']})" if s.get("ссылка") else s['место']
+        summary.append(f"{emoji} {time_part}{s['активность']} ({location_text})")
 
- # 🔽 Добавляем выделенный блок-инструкцию про фото
     summary.append("\n────────────")
     summary.append("📸 *Как сохранить фотографии?*")
     summary.append("1️⃣ Нажмите внизу кнопку *«📸 Загрузить фото»*")
     summary.append("2️⃣ Отправьте свои фотографии прямо сюда")
     summary.append("Я всё аккуратно сохраню на диск.")
     summary.append("\n────────────")
-    summary.append("\n📂 [Смотреть фотографии на Яндекс.Диске](https://disk.yandex.ru/d/nrOTg5cbjwywxA)")
-
+    summary.append("📂 [Смотреть фотографии на Яндекс.Диске](https://disk.yandex.ru/d/nrOTg5cbjwywxA)")
 
     for uid in user_ids:
         await bot.send_message(uid, "\n".join(summary), parse_mode="Markdown", disable_web_page_preview=True)
